@@ -1,21 +1,24 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import UserModel from "../../models/user/userModel";
-import { authenticate, refreshToken } from "../../Common/auth/tools.js";
-import { jwtAuthMiddleware } from "../../Common/auth/index.js";
+import { authenticate, refreshToken } from "../../common/utils/auth/tools";
+import { jwtAuthMiddleware } from "../../common/utils/auth/index";
 import passport from "passport";
 
 const loginRouter = express.Router();
 
-loginRouter.post("/login", async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-    const user = await UserModel.checkCredentials(email, password);
-    const tokens = await authenticate(user);
-    res.send(tokens);
-  } catch (error) {
-    next(error);
+loginRouter.post(
+  "/login",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body;
+      const user = await UserModel.checkCredentials(email, password);
+      const tokens = await authenticate(user);
+      res.send(tokens);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 // //REFRESH TOKEN IN LOCAL STORAGE
 // loginRouter.post("/refreshToken", async (req, res, next) => {
 //   const oldRefreshToken = req.body.refreshToken;
@@ -37,33 +40,36 @@ loginRouter.post("/login", async (req, res, next) => {
 // });
 
 // REFRESH TOKEN WITH COOKIES
-loginRouter.post("/refreshToken", async (req, res, next) => {
-  try {
-    const oldRefreshToken = req.cookies.refreshToken;
+loginRouter.post(
+  "/refreshToken",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const oldRefreshToken = req.cookies.refreshToken;
 
-    // 1. We need to check the validity and integrity of the old refresh token, if ok we are going to generate a new pair of access + refresh token
-    const tokens = await refreshToken(oldRefreshToken);
-    // 2. Send back the new tokens
-    res.cookie("accessToken", tokens.accessToken, {
-      sameSite: "lax",
-      httpOnly: true,
-    });
+      // 1. We need to check the validity and integrity of the old refresh token, if ok we are going to generate a new pair of access + refresh token
+      const tokens = await refreshToken(oldRefreshToken);
+      // 2. Send back the new tokens
+      res.cookie("accessToken", tokens.accessToken, {
+        sameSite: "lax",
+        httpOnly: true,
+      });
 
-    // LOCAL ENVIRONMENT --> sameSite:"lax", httpOnly:true, PRODUCTION ENVIRONMENT (with 2 different domains) --> sameSite:"none", secure: true, httpOnly: true
-    res.cookie("refreshToken", tokens.refreshToken, {
-      sameSite: "lax",
-      httpOnly: true,
-    });
-    res.send();
-    tokens;
-  } catch (error) {
-    console.log(error);
-    const err = new Error("Please login again!");
+      // LOCAL ENVIRONMENT --> sameSite:"lax", httpOnly:true, PRODUCTION ENVIRONMENT (with 2 different domains) --> sameSite:"none", secure: true, httpOnly: true
+      res.cookie("refreshToken", tokens.refreshToken, {
+        sameSite: "lax",
+        httpOnly: true,
+      });
+      res.send();
+      tokens;
+    } catch (error) {
+      console.log(error);
+      const err = new Error("Please login again!");
 
-    err.statusCode = 401;
-    next(err);
+      err.statusCode = 401;
+      next(err);
+    }
   }
-});
+);
 
 loginRouter.post("/logout", jwtAuthMiddleware, async (req, res, next) => {
   try {
