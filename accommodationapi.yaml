@@ -1,0 +1,213 @@
+info:
+  title: Strivago
+  description: This is a API for folks.
+  version: 1.0.0         
+servers:
+  - description: 'Strivago'
+    url: http://localhost:3000
+openapi: 3.0.1
+tags:
+  - name: Accommodation
+    description: Operations about Accommodation
+  - name: Destinations
+    description: Operations about Destination
+paths:
+  /accommodation:
+    get:
+      tags:
+        - Accommodation
+      summary: Return a list of Accommodation.
+      description: Returns a list of accommodation
+      operationId: getAccommodation
+      responses:
+        '200':
+          description: 'Array of accommodation'
+          content:
+            application/json:
+              schema:
+               type: array
+               items:
+                $ref: '#/components/schemas/Accommodation'
+    post:
+      tags:
+        - Accommodation
+      summary: Return a list of Accommodation.
+      description: This operation add a new accommodation
+      operationId: postAccommodation
+      responses:
+        '200':
+          description: 'New accommodation'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Accommodation'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /accommodation/{id}:
+    get:
+      tags:
+        - Accommodation
+      summary: Return a specific Accommodation.
+      description: Returns a list of accommodation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+           type: string
+      operationId: getAccommodationById
+      responses:
+        '200':
+          description: 'Array of accommodation'
+          content:
+            application/json:
+              schema:
+               type: array
+               items:
+                $ref: '#/components/schemas/Accommodation'
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags:
+        - Accommodation
+      summary: Edit a specific Accommodation.
+      description: Edit a spesific of accommodation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+           type: string
+      operationId: editAccommodationById
+      responses:
+        '200':
+          description: 'Array of accommodation'
+          content:
+            application/json:
+              schema:
+               type: array
+               items:
+                $ref: '#/components/schemas/Accommodation'
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags:
+        - Accommodation
+      summary: Delete a specific Accommodation.
+      description: Delete a spesific of accommodation
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+           type: string
+      operationId: deleteAccommodationById
+      responses:
+        '200':
+          description: 'Array of accommodation'
+          content:
+            application/json:
+              schema:
+               type: array
+               items:
+                $ref: '#/components/schemas/Accommodation'
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /destinations:
+    get:
+      tags:
+        - Destinations
+      summary: Return a list of Destinations.
+      description: Returns a list of destinations.
+      operationId: getDestinations
+      responses:
+        '200':
+          description: 'Array of destinations'
+          content:
+            application/json:
+              schema:
+               type: array
+               items:
+                $ref: '#/components/schemas/Destination'
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /destinations/{city}:     
+    get:
+      tags:
+        - Destinations
+      summary: Return a specific destination
+      description: Returns a list of destination
+      parameters:
+        - in: path
+          name: city
+          required: true
+          schema:
+           type: string
+      operationId: getDestinationByCity
+      responses:
+        '200':
+          description: 'Array of accommodation'
+          content:
+            application/json:
+              schema:
+               type: array
+               items:
+                $ref: '#/components/schemas/Accommodation'
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  responses:
+    NotFound:
+      description: The specific resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: Some problems with your request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Bearer token missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    GenericServerError:
+      description: A problem on the server occurred
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    Accommodation:
+      type: object
+      properties:
+        id:
+         type: string
+        name:
+         type: string
+        description:
+         type: string
+        maxGuests :
+         type: number
+        city:
+         type: string
+    Destination:
+      type: object
+      properties: 
+        cityName:
+          type: string
+        accommodation:
+          type: array
+          items: 
+           $ref: "#/components/schemas/Accommodation"
